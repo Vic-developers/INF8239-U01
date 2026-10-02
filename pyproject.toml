@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inf8239-u01"
+version = "0.1.0"
+description = "INF-8239 Ciencia de Datos II — Unidad 01, Ejercicio 01: dataset público y SVM reproducible"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0,<3",
+    "pandas>=2.2,<3",
+    "scikit-learn>=1.6,<2",
+    "matplotlib>=3.9,<4",
+    "seaborn>=0.13,<1",
+    "joblib>=1.4,<2",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebooks: celdas pedagógicas con sys.path y orden de imports didáctico
+"notebooks/**" = ["E402", "I001"]

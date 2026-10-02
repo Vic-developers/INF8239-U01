@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Entornos y secretos
+.env
+.env.*
+*.key
+credenciales*
+
+# Datos crudos descargados (se regeneran con data.py)
+# data/raw/* se mantiene con .gitkeep; descomentar si el dataset es muy pesado:
+# data/raw/*.csv
+# data/raw/*.zip
+
+# Modelos y reportes generados (grandes)
+# svm_best.joblib SÍ se incluye en la entrega (evidencia del modelo final)
+
+# Editores
+.vscode/
+.idea/
+
+# SO
+.DS_Store
+Thumbs.db
