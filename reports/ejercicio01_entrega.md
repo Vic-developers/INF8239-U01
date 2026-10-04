@@ -4,7 +4,7 @@
 
 ### Dataset público y SVM reproducible
 
-**Estudiante:** PENDIENTE DE COMPLETAR
+**Estudiante:** Victor E. Lorenzo
 **Estado del dataset:** PENDIENTE DE APROBACIÓN DEL DOCENTE
 
 ---

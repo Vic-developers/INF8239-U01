@@ -57,7 +57,7 @@ oportunas. Si prefiere otro dataset, el pipeline está parametrizado y
 puede re-ejecutarse sobre el que usted indique.
 
 Atentamente,
-PENDIENTE DE COMPLETAR (nombre del estudiante)
+Victor E. Lorenzo
 
 ---
 

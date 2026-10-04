@@ -42,21 +42,13 @@ requiere la población completa, cambiar
 `MODELING_FILE` en `scripts/ejecutar_ejercicio01.py`
 y re-ejecutar).
 
-## 3. Completar el nombre del estudiante en el PDF
+## 3. ~~Completar el nombre del estudiante en el PDF~~ ✅ REALIZADO (2026-10-03)
 
-**Motivo:** No se dispone del nombre; no se inventa.
+**Motivo:** No se disponía del nombre; no se inventa.
 
-**Cómo realizarla:** Abrir `reports/ejercicio01_entrega.md`,
-sustituir `PENDIENTE DE COMPLETAR` en la portada por
-el nombre real, y regenerar el PDF:
-
-```powershell
-pandoc reports\ejercicio01_entrega.md -o reports\ejercicio01_entrega.pdf --pdf-engine=xelatex -V lang=es -V geometry:margin=2.2cm
-```
-
-**Archivo que debo actualizar:**
-`reports/ejercicio01_entrega.md` y
-`reports/ejercicio01_entrega.pdf`.
+**Realizado:** Nombre "Victor E. Lorenzo" colocado en la portada de
+`reports/ejercicio01_entrega.md`, PDF regenerado y firmado en
+`docs/solicitud_aprobacion.md`.
 
 ## 4. Crear el repositorio GitHub y agregar su URL
 
