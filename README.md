@@ -135,6 +135,10 @@ Resultados reales de la ejecución (test, n=905):
 - `duration` se excluye por leakage documentado.
 - SVM RBF no es interpretable; no se infiere causalidad.
 
+## Repositorio
+
+**https://github.com/Vic-developers/INF8239-U01**
+
 ## Documentación
 
 Ver `docs/` (índice en `docs/README.md` no aplica; los

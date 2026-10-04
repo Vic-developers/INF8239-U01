@@ -72,4 +72,4 @@ El dataset utilizado fue Bank Marketing (UCI 222, CC BY 4.0) con la pregunta de 
 
 ## 9. Repositorio
 
-PENDIENTE DE COMPLETAR CON URL DE GITHUB
+**https://github.com/Vic-developers/INF8239-U01**
