@@ -1,0 +1,4 @@
+{
+  "extends": "@mcc/config/tsconfig.test.json",
+  "include": ["src/**/*.ts", "scripts/**/*.ts", "drizzle.config.ts"]
+}

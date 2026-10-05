@@ -1,15 +1,36 @@
 /**
  * Moodle Web Service function catalogue and capability requirements.
  *
- * IMPORTANT: availability varies by Moodle version (4.2 / 4.4 / 4.5 / 5.x) and
- * by the capabilities granted to the service token. Nothing here is assumed at
- * runtime — the discovery probe records what the target instance actually
- * exposes and the registry is used to *check*, never to assert.
+ * IMPORTANT: availability varies by Moodle version — the supported range is
+ * 4.0 to 5.3 — and by the capabilities granted to the service token. Nothing
+ * here is assumed at runtime: the discovery probe records what the target
+ * instance actually exposes, and the registry is used to *check*, never to
+ * assert.
  *
- * Phase 0 includes a probe against a real Moodle to verify this table. Any
- * entry that turns out to be wrong is corrected here, not worked around at the
- * call site.
+ * Where a function only exists from a given version, where it was replaced, or
+ * where its parameters were gated, the fact lives in `versions.ts`. This file
+ * stays a catalogue of what we call and what it costs.
+ *
+ * No real Moodle has been probed yet, so availability is documented from the
+ * published API, not verified. Entries whose availability is still unconfirmed
+ * are expected to be corrected here once a probe runs; they are not worked
+ * around at the call site.
  */
+
+export {
+  compareMoodleVersions,
+  isSupportedMoodleVersion,
+  parseMoodleVersion,
+  resolveFunction,
+  stripUnsupportedParams,
+  MAXIMUM_MOODLE_VERSION,
+  MINIMUM_MOODLE_VERSION,
+} from './versions.js';
+export type {
+  FunctionResolution,
+  MoodleVersion,
+  UnavailableReason,
+} from './versions.js';
 
 export interface MoodleFunctionSpec {
   /** Fully-qualified Moodle web service function name. */
@@ -241,10 +262,20 @@ export const PLAN_REQUIRED_CAPABILITIES: Record<string, readonly string[]> = {
   'moodle.instance.probe': [],
 };
 
-/** Adapter behaviour keyed by the discovered major version. */
+/**
+ * Adapter behaviour keyed by the discovered major version.
+ *
+ * The supported range is 4.0 – 5.3. Both bounds live in `versions.ts` together
+ * with the per-function resolution rules, so there is a single place to widen the
+ * range and a single place to record why.
+ */
 export const SUPPORTED_MOODLE_MAJOR_VERSIONS = [4, 5] as const;
 
-export const MINIMUM_MOODLE_VERSION = '4.2';
+/**
+ * Human-readable range for operator-facing messages. The machine-readable bounds
+ * are `MINIMUM_MOODLE_VERSION` / `MAXIMUM_MOODLE_VERSION` in `versions.ts`.
+ */
+export const SUPPORTED_MOODLE_RANGE = '4.0 – 5.3' as const;
 
 export interface MoodleSiteInfo {
   readonly sitename: string;

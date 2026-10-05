@@ -20,10 +20,12 @@ import { hashPassword } from '@mcc/shared/node/password';
 import { createPlatformDatabase, withPlatformScope } from '../index.js';
 import { rolePermissions, tenantMembers, tenants, userRoles, users } from '../schema/mcc.js';
 
-const PLATFORM_URL = process.env['DATABASE_PLATFORM_URL'];
-
-if (!PLATFORM_URL) {
-  throw new Error('DATABASE_PLATFORM_URL is required to seed. See .env.example.');
+function requirePlatformUrl(): string {
+  const value = process.env['DATABASE_PLATFORM_URL'];
+  if (!value) {
+    throw new Error('DATABASE_PLATFORM_URL is required to seed. See .env.example.');
+  }
+  return value;
 }
 
 interface SeedRoleRow {
@@ -170,7 +172,7 @@ async function seedDevTenant(
 }
 
 async function main(): Promise<void> {
-  const pool = createPlatformDatabase({ connectionString: PLATFORM_URL });
+  const pool = createPlatformDatabase({ connectionString: requirePlatformUrl() });
 
   try {
     console.log('Seeding Moodle Control Center…\n');

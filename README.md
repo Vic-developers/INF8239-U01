@@ -33,6 +33,7 @@ Verificado y ejecutándose en esta máquina:
 | Hash de contraseñas scrypt versionado | ✅ 7 tests |
 | Mapeo de errores de Moodle a errores accionables | ✅ |
 | Catálogo de funciones WS + capacidades requeridas | ✅ tabla, sin verificar contra Moodle real |
+| Rango de versiones 4.0 – 5.3 y resolución por versión | ✅ 23 tests, pendiente de probe real |
 | `LmsAdapter` + datos del mock adapter | ✅ contrato, sin adaptador real |
 | Contratos del Plan Engine | ✅ zod, sin ejecutor |
 | `apps/api`, `apps/worker`, `apps/web` | ⬜ no iniciada |
@@ -51,6 +52,7 @@ Decisiones clave ya tomadas:
 | Contraseñas | scrypt (N=2^15) con parámetros versionados en el hash |
 | Aislamiento | `tenant_id` + `FORCE ROW LEVEL SECURITY` como segunda barrera |
 | Integración | `LmsAdapter` → `MoodleAdapter` / `MockMoodleAdapter` |
+| Versiones de Moodle | 4.0 – 5.3, elegible por instancia |
 | Plugin complementario | `local_moodlecontrolcenter` (solo donde el WS estándar no llega) |
 
 ### Los tres roles de base de datos
@@ -69,6 +71,27 @@ privilegios distintos.
 tenant, y por eso el alta del primer tenant de un tenant no puede hacerla el rol
 de peticiones: la fila que se inserta *es* el ámbito. Esa operación, y solo esa
 clase de operaciones, usa `mcc_platform`.
+
+### Moodle 4.0 – 5.3 en una sola ruta de código
+
+El rango soportado es amplio a propósito: un solo producto administra varias
+instancias, y cada una puede estar en una versión distinta. Eso descarta un
+catálogo plano de funciones, porque dentro del rango hay cambios reales:
+
+- `unenrol_user` quedó obsoleta en 4.2 en favor de `core_enrol_unenrol_user`
+- `core_course_get_courses` solo acepta `options` (paginación y selección de
+  campos) desde 4.4; antes, esos argumentos producen un error
+
+Por eso `resolveFunction()` no devuelve un nombre sino una decisión: versión +
+funciones que la instancia dice exponer → nombre a llamar, o el motivo por el que
+no se puede llamar. `stripUnsupportedParams()` elimina los argumentos que la
+versión destino aún no soporta en lugar de dejar que Moodle rechace la llamada
+completa.
+
+Cuando la versión o la lista de funciones son desconocidas, la resolución se
+marca como **provisional** en lugar de asumir compatibilidad. Asumirla es
+precisamente cómo una operación destructiva falla a mitad de camino en una
+instancia antigua.
 
 Consecuencia deliberada: leer una tabla de tenant sin ámbito activo devuelve **cero
 filas**, no todas. Un `where tenant_id = ?` olvidado es un no-op silencioso, no
@@ -101,6 +124,12 @@ sobrescribe.
 | `docs/DATABASE.md` | Pendiente |
 | `docs/API.md` | Pendiente |
 | `docs/MOODLE-INTEGRATION.md` | Pendiente (requiere probe contra Moodle real) |
+
+> **Lo que aún no está verificado.** No hay ninguna instancia real de Moodle
+> conectada. El catálogo de funciones, los límites de versión y los requisitos de
+> capacidades provienen de la API documentada de Moodle, no de un probe. El
+> adaptador de desarrollo es `MockMoodleAdapter`; el real se escribirá cuando
+> haya una instancia a la que apuntar.
 | `docs/DEPLOYMENT.md` | Pendiente |
 | `docs/TESTING.md` | Pendiente |
 | `docs/CONTRIBUTING.md` | Pendiente |

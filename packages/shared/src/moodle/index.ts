@@ -1,5 +1,6 @@
 export * from './functions.js';
 export * from './errors.js';
+export * from './versions.js';
 export type { LmsAdapter, CapabilityProbeResult, MoodleInstanceConfig } from './adapter.js';
 export {
   MOCK_LATENCY_RANGE_MS,

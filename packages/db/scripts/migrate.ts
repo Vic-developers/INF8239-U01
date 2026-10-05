@@ -42,12 +42,16 @@ async function main(): Promise<void> {
   const sql = postgres(connectionString, { max: 1, onnotice: () => undefined });
 
   try {
-    const [{ rolname, rolsuper, rolbypassrls }] = await sql<
-      { rolname: string; rolsuper: boolean; rolbypassrls: boolean }[]
-    >`select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user`;
+    const [role] = await sql<{ rolname: string; rolsuper: boolean; rolbypassrls: boolean }[]>`
+      select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user
+    `;
 
-    console.log(`Migration role: ${rolname}`);
-    if (rolsuper || rolbypassrls) {
+    if (!role) {
+      throw new Error('Could not read the current database role.');
+    }
+
+    console.log(`Migration role: ${role.rolname}`);
+    if (role.rolsuper || role.rolbypassrls) {
       console.warn(
         '  Warning: this role is SUPERUSER or has BYPASSRLS. It can bypass tenant isolation, ' +
           'which makes RLS verification meaningless in this environment.',
