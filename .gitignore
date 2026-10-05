@@ -1,33 +1,64 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-build/
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
 dist/
+build/
+out/
+*.tsbuildinfo
+.turbo/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Entornos y secretos
+# Environment
 .env
 .env.*
+!.env.example
+*.pem
 *.key
-credenciales*
 
-# Datos crudos descargados (se regeneran con data.py)
-# data/raw/* se mantiene con .gitkeep; descomentar si el dataset es muy pesado:
-# data/raw/*.csv
-# data/raw/*.zip
+# Local data / volumes
+data/
+!data/.gitkeep
+docker-volumes/
+postgres-data/
+redis-data/
+minio-data/
 
-# Modelos y reportes generados (grandes)
-# svm_best.joblib SÍ se incluye en la entrega (evidencia del modelo final)
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
 
-# Editores
-.vscode/
+# Test artifacts
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+*.lcov
+
+# Caches
+.cache/
+.eslintcache
+.cache/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# IDE / OS
 .idea/
-
-# SO
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
 .DS_Store
 Thumbs.db
+
+# Editors
+*.swp
+.idea/
+
+# Exports and generated reports (tenant data must never be committed)
+exports/
+reports/*.xlsx
+reports/*.csv
