@@ -1,0 +1,50 @@
+{
+  "name": "@mcc/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "default": "./dist/schema/index.js"
+    },
+    "./rls": {
+      "types": "./dist/rls.d.ts",
+      "default": "./dist/rls.js"
+    }
+  },
+  "files": ["dist", "migrations", "drizzle.config.ts", "seed.ts"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf dist",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run --passWithNoTests",
+    "generate": "drizzle-kit generate && tsx scripts/finalize-migration.ts",
+    "migrate": "tsx scripts/migrate.ts",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio",
+    "seed": "tsx src/scripts/seed.ts"
+  },
+  "dependencies": {
+    "@mcc/shared": "workspace:*",
+    "drizzle-orm": "^0.38.3",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@mcc/config": "workspace:*",
+    "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.30.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

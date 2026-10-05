@@ -1,0 +1,60 @@
+{
+  "name": "@mcc/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./permissions": {
+      "types": "./dist/auth/permissions.d.ts",
+      "default": "./dist/auth/permissions.js"
+    },
+    "./roles": {
+      "types": "./dist/auth/roles.d.ts",
+      "default": "./dist/auth/roles.js"
+    },
+    "./errors": {
+      "types": "./dist/core/errors.d.ts",
+      "default": "./dist/core/errors.js"
+    },
+    "./plans": {
+      "types": "./dist/core/plans.d.ts",
+      "default": "./dist/core/plans.js"
+    },
+    "./moodle": {
+      "types": "./dist/moodle/index.d.ts",
+      "default": "./dist/moodle/index.js"
+    },
+    "./jobs": {
+      "types": "./dist/core/jobs.d.ts",
+      "default": "./dist/core/jobs.js"
+    },
+    "./node/password": {
+      "types": "./dist/node/password.d.ts",
+      "default": "./dist/node/password.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf dist",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@mcc/config": "workspace:*",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

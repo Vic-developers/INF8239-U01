@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Generated drizzle artifacts
+packages/db/src/schema/_generated/
+packages/db/migrations/meta/
