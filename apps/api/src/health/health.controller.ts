@@ -11,10 +11,17 @@
  */
 
 import { Controller, Get } from '@nestjs/common';
+import { Public } from '../auth/route-metadata.js';
 
 @Controller('health')
 export class HealthController {
+  /**
+   * Public on purpose: an orchestrator's liveness probe has no
+   * credentials, and a health check that answers 401 reads as a
+   * healthy process being killed for failing auth.
+   */
   @Get()
+  @Public()
   check(): { status: 'ok'; timestamp: string } {
     return { status: 'ok', timestamp: new Date().toISOString() };
   }

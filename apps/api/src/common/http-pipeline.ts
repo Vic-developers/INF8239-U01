@@ -16,7 +16,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import type { NextFunction, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { AppError, REQUEST_ID_HEADER } from '@mcc/shared';
 import { AppExceptionFilter } from './app-exception.filter.js';
 import type { RequestWithContext } from './request-context.js';
@@ -35,6 +35,22 @@ export function applyHttpPipeline(app: INestApplication): void {
       referrerPolicy: { policy: 'no-referrer' },
     }),
   );
+
+  // Nothing the API serves is cacheable, and saying so is not pedantry.
+  //
+  // Express emits an ETag but no Cache-Control, which leaves the browser to
+  // decide on its own: it stores authenticated JSON and later answers a
+  // repeat request from memory. The symptoms are a UI that reports you as
+  // signed in while the API answers 401 (the cached session body beats the
+  // live one) and tenant data still readable from cache after logout on a
+  // shared machine. `no-store` removes the decision; `Vary: Cookie` tells
+  // any intermediary that ignores it that these responses differ per
+  // session.
+  express.use((_req: Request, res: Response, next: NextFunction) => {
+    res.set('Cache-Control', 'no-store');
+    res.set('Vary', 'Cookie');
+    next();
+  });
 
   // Every response carries a request id, generated if the client did not send
   // one. It is echoed in error bodies, so a user can quote it in a report.
