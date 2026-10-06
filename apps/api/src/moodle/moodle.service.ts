@@ -27,7 +27,7 @@ import {
   isSupportedMoodleVersion,
   parseMoodleVersion,
 } from '@mcc/shared';
-import type { LmsAdapter } from '@mcc/shared';
+import type { LmsAdapter, MoodleSiteInfo, MoodleVersion } from '@mcc/shared';
 import { z } from 'zod';
 import { CryptoService } from '../crypto/crypto.service.js';
 import { DatabaseService } from '../database/database.module.js';
@@ -200,7 +200,7 @@ export class MoodleService {
     const capabilities = await adapter.probeCapabilities();
     const latencyP50Ms = Date.now() - started;
 
-    const parsed = parseMoodleVersion(siteInfo.version);
+    const parsed = parseSiteVersion(siteInfo);
     const supported = parsed !== null && isSupportedMoodleVersion(parsed);
 
     const { tenantId, actorId } = scope;
@@ -366,6 +366,28 @@ export class MoodleService {
 function hashFunctions(functions: readonly string[]): string {
   const joined = [...functions].sort().join('\n');
   return createHash('sha256').update(joined).digest('hex');
+}
+
+/**
+ * The instance's semantic version.
+ *
+ * Real Moodle reports the build code in `version`
+ * (`2025040700.00`) and the dotted release in `release`
+ * (`4.5.2 (Build: …)`), so the release is parsed first.
+ * A build code would parse as a nonsensical major, so a
+ * candidate whose major is implausibly large is rejected
+ * rather than trusted — which is how an instance is never
+ * mistaken for a supported one just because its build
+ * number is big.
+ */
+function parseSiteVersion(siteInfo: MoodleSiteInfo): MoodleVersion | null {
+  for (const candidate of [siteInfo.release, siteInfo.version]) {
+    const parsed = parseMoodleVersion(candidate);
+    if (parsed !== null && parsed.major <= 10) {
+      return parsed;
+    }
+  }
+  return null;
 }
 
 /**

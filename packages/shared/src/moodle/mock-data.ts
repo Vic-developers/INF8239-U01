@@ -87,7 +87,7 @@ export function createMockSiteInfo(sitename = 'Moodle Mock'): MoodleSiteInfo {
     version: '2025040700.00',
     versionnumber: 2025040700,
     major: 4,
-    minimal: 4,
+    minimal: 5,
     functions: [...MOCK_AVAILABLE_FUNCTIONS],
     usersCanBeListed: true,
     usercanmanageownfiles: true,

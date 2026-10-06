@@ -375,8 +375,20 @@ export class AuthService {
 
       if (!row) throw new AppError({ code: 'INTERNAL_ERROR', message: 'No se pudo crear la sesión.' });
 
-      // Best-effort: a failed login-timestamp write must not fail the login.
-      await tx.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, userId));
+      // Best-effort: a failed write must not fail the login.
+      // A successful login also clears the failure counter, so
+      // an attacker has to fail that many times in a row rather
+      // than an old, forgotten failure counting toward a lockout
+      // long after the legitimate user has proved they know the
+      // password.
+      await tx
+        .update(users)
+        .set({
+          lastLoginAt: new Date(),
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+        })
+        .where(eq(users.id, userId));
 
       return row;
     });

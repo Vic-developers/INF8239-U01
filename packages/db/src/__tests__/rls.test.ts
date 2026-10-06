@@ -16,7 +16,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { sql } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 import {
   createDatabase,
   createPlatformDatabase,
@@ -45,6 +45,11 @@ describe('tenant isolation via Row Level Security', () => {
   const tenantB = randomUUID();
   const userA = randomUUID();
   const userB = randomUUID();
+  // Suffixed per run: `tenants.slug` is unique, so a fixture left
+  // behind by an interrupted run must not fail the next one at insert
+  // time — a cleanup bug would otherwise look like a broken schema.
+  const slugA = `tenant-a-${tenantA.slice(0, 8)}`;
+  const slugB = `tenant-b-${tenantB.slice(0, 8)}`;
 
   beforeAll(async () => {
     platform = createPlatformDatabase({ connectionString: PLATFORM_URL });
@@ -55,13 +60,13 @@ describe('tenant isolation via Row Level Security', () => {
     // that user has a membership. This is the bootstrap exception in action.
     await withPlatformScope(platform.db, async (tx) => {
       await tx.insert(tenants).values([
-        { id: tenantA, slug: 'tenant-a', name: 'Tenant A', status: 'active' },
-        { id: tenantB, slug: 'tenant-b', name: 'Tenant B', status: 'active' },
+        { id: tenantA, slug: slugA, name: 'Tenant A', status: 'active' },
+        { id: tenantB, slug: slugB, name: 'Tenant B', status: 'active' },
       ]);
 
       await tx.insert(users).values([
-        { id: userA, email: 'a@example.test', name: 'User A', status: 'active' },
-        { id: userB, email: 'b@example.test', name: 'User B', status: 'active' },
+        { id: userA, email: `a+${userA.slice(0, 8)}@example.test`, name: 'User A', status: 'active' },
+        { id: userB, email: `b+${userB.slice(0, 8)}@example.test`, name: 'User B', status: 'active' },
       ]);
 
       await tx.insert(tenantMembers).values([
@@ -73,10 +78,16 @@ describe('tenant isolation via Row Level Security', () => {
 
   afterAll(async () => {
     if (platform) {
+      // Scoped to this suite's own fixtures. An unscoped
+      // delete here would remove every user in the database
+      // — including the seeded demo administrator other
+      // suites depend on — and would be blocked anyway once
+      // any table references those users, as
+      // `operation_plans.created_by` does.
       await withPlatformScope(platform.db, async (tx) => {
-        await tx.delete(tenantMembers);
-        await tx.delete(users);
-        await tx.delete(tenants);
+        await tx.delete(tenantMembers).where(inArray(tenantMembers.userId, [userA, userB]));
+        await tx.delete(users).where(inArray(users.id, [userA, userB]));
+        await tx.delete(tenants).where(inArray(tenants.id, [tenantA, tenantB]));
       });
       await platform.close();
     }
@@ -117,13 +128,13 @@ describe('tenant isolation via Row Level Security', () => {
       tx.select({ email: users.email }).from(users),
     );
     expect(asA).toHaveLength(1);
-    expect(asA[0]?.email).toBe('a@example.test');
+    expect(asA[0]?.email).toBe(`a+${userA.slice(0, 8)}@example.test`);
 
     const asB = await withTenant(app.db, { tenantId: tenantB }, async (tx) =>
       tx.select({ email: users.email }).from(users),
     );
     expect(asB).toHaveLength(1);
-    expect(asB[0]?.email).toBe('b@example.test');
+    expect(asB[0]?.email).toBe(`b+${userB.slice(0, 8)}@example.test`);
   });
 
   it('isolates memberships across tenants', async () => {

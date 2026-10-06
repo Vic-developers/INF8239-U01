@@ -15,6 +15,7 @@ import { MoodleModule } from './moodle/moodle.module.js';
 import { QueueModule } from './queue/queue.module.js';
 import { PlansModule } from './plans/plans.module.js';
 import { RedisModule } from './redis/redis.module.js';
+import { HealthModule } from './health/health.module.js';
 import { AppExceptionFilter } from './common/app-exception.filter.js';
 
 @Module({
@@ -25,6 +26,7 @@ import { AppExceptionFilter } from './common/app-exception.filter.js';
     QueueModule,
     PlansModule,
     RedisModule,
+    HealthModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AppExceptionFilter }],
 })

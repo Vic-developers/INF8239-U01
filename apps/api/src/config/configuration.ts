@@ -47,6 +47,26 @@ function loadEnvironmentFile(): void {
 
 loadEnvironmentFile();
 
+/**
+ * Parses a boolean environment variable, falling back to `fallback` when the
+ * variable is absent.
+ *
+ * `z.coerce.boolean()` is `Boolean(value)`, which makes the string `"false"`
+ * true — so a single `COOKIE_SECURE=false` in `.env` would silently ship
+ * `Secure` cookies, and a production guard would silently disable itself.
+ * Only the actual false-ish spellings are false; anything else is a
+ * configuration error rather than a quiet guess.
+ */
+const booleanEnv = (fallback: 'true' | 'false') =>
+  z
+    .string()
+    .default(fallback)
+    .transform((value) => value.trim().toLowerCase())
+    .refine((value) => ['true', 'false', '1', '0', 'yes', 'no'].includes(value), {
+      message: 'Must be one of: true, false, 1, 0, yes, no',
+    })
+    .transform((value) => value === 'true' || value === '1' || value === 'yes');
+
 /** 32 bytes base64: the AES-256-GCM key that wraps Moodle tokens. */
 const base64Key32 = z
   .string()
@@ -69,7 +89,7 @@ const configSchema = z.object({
   /** Comma-separated list, or `*` in development. */
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
   /** Trust proxy headers only when actually behind a proxy. */
-  TRUST_PROXY: z.coerce.boolean().default(false),
+  TRUST_PROXY: booleanEnv('false'),
 
   // ── Database ─────────────────────────────────────────────────────────────
   /** Request-serving role. Must be mcc_app: NOBYPASSRLS, no ownership. */
@@ -100,7 +120,7 @@ const configSchema = z.object({
   LOGIN_MAX_ATTEMPTS: z.coerce.number().int().min(3).max(20).default(5),
   LOGIN_LOCK_MINUTES: z.coerce.number().int().min(1).max(1440).default(15),
   /** Secure cookie flags. Off by default so local http development works. */
-  COOKIE_SECURE: z.coerce.boolean().default(false),
+  COOKIE_SECURE: booleanEnv('false'),
   COOKIE_DOMAIN: z.string().optional(),
 
   // ── Encryption ───────────────────────────────────────────────────────────
@@ -118,7 +138,7 @@ const configSchema = z.object({
    * adapter. Refused in production: a mock that looks real is how an
    * institution discovers its enrolment data was never written.
    */
-  ALLOW_MOCK_MOODLE: z.coerce.boolean().default(true),
+  ALLOW_MOCK_MOODLE: booleanEnv('true'),
 
   // `silent` is pino's own level and the right one for the test suite.
   LOG_LEVEL: z
