@@ -11,10 +11,21 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { MoodleModule } from './moodle/moodle.module.js';
+import { QueueModule } from './queue/queue.module.js';
+import { PlansModule } from './plans/plans.module.js';
+import { RedisModule } from './redis/redis.module.js';
 import { AppExceptionFilter } from './common/app-exception.filter.js';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    MoodleModule,
+    QueueModule,
+    PlansModule,
+    RedisModule,
+  ],
   providers: [{ provide: APP_FILTER, useClass: AppExceptionFilter }],
 })
 export class AppModule {}

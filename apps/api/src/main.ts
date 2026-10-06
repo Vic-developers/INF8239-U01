@@ -12,7 +12,6 @@
 
 import 'reflect-metadata';
 import { writeFileSync } from 'node:fs';
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
@@ -22,15 +21,20 @@ import { AppError, REQUEST_ID_HEADER } from '@mcc/shared';
 import { AppModule } from './app.module.js';
 import { DatabaseService } from './database/database.module.js';
 import { AppExceptionFilter } from './common/app-exception.filter.js';
+import { createPinoLogger } from './common/pino-logger.js';
 import type { RequestWithContext } from './common/request-context.js';
 import { config } from './config/configuration.js';
 
 async function bootstrap(): Promise<void> {
-  // The default logger is used for now so a startup failure is
-  // actually printed: `logger: false` silences Nest's exception
-  // zone, which would swallow the error and exit(1) with no trace.
-  // A structured logger (pino) replaces this once wired.
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // A structured logger from the first line, so a
+  // startup failure is printed in a form the log
+  // pipeline can collect. The exception zone still
+  // calls process.exit(1) on a startup error, but
+  // the logger is present to record what it was.
+  const logger = createPinoLogger('mcc-api');
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger,
+  });
 
   app.use(cookieParser());
   app.use(
@@ -89,7 +93,7 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(config.PORT, config.HOST);
 
-  new Logger('Bootstrap').log(`API escuchando en http://${config.HOST}:${config.PORT}`);
+  logger.log(`API escuchando en http://${config.HOST}:${config.PORT}`);
 }
 
 bootstrap().catch((error: unknown) => {
