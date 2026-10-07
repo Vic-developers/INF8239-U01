@@ -1,38 +1,38 @@
-import { mergeConfig, type UserConfig } from 'vitest/config';
-import base from './vitest.config.js';
+import ts from 'typescript';
+import { defineConfig } from 'vitest/config';
 
-/**
- * End-to-end profile.
- *
- * Separated from the default run because an e2e test is
- * allowed to be slower, to start real processes, and to
- * assume the infrastructure in `infra/` is up — none of
- * which belongs in the fast inner loop of `pnpm test`.
- *
- * The TypeScript compiler plugin and the setup file are
- * inherited, so both profiles compile decorators the same
- * way; only the file set and the timeouts differ.
- *
- * Until `test/e2e/` has files, the profile passes with no
- * tests rather than failing CI for an empty directory.
- */
-const merged = mergeConfig(base, {
+export default defineConfig({
+  plugins: [
+    {
+      name: 'mcc:ts-compiler',
+      enforce: 'pre',
+      transform(code, id) {
+        if (!id.endsWith('.ts') || id.includes('node_modules')) {
+          return null;
+        }
+        const result = ts.transpileModule(code, {
+          fileName: id,
+          compilerOptions: {
+            module: ts.ModuleKind.ESNext,
+            target: ts.ScriptTarget.ES2023,
+            experimentalDecorators: true,
+            emitDecoratorMetadata: true,
+            useDefineForClassFields: false,
+          },
+        });
+        return {
+          code: result.outputText,
+          map: result.sourceMapText,
+        };
+      },
+    },
+  ],
   test: {
-    name: 'e2e',
-    passWithNoTests: true,
-    // A full stack boot plus real queue round-trips needs
-    // more headroom than an in-process integration test.
-    testTimeout: 60_000,
+    setupFiles: ['./test/setup-env.ts'],
+    include: ['test/e2e/**/*.test.ts'],
+    pool: 'forks',
+    poolOptions: { forks: { singleFork: true } },
+    testTimeout: 30_000,
     hookTimeout: 60_000,
   },
-} satisfies UserConfig);
-
-const config = merged as UserConfig & { test: NonNullable<UserConfig['test']> };
-
-// Assigned after the merge rather than inside it: `mergeConfig`
-// concatenates arrays, so an `include` given there would be added to
-// the inherited one and the e2e run would quietly re-execute every
-// integration file as well.
-config.test.include = ['test/e2e/**/*.e2e.test.ts'];
-
-export default config;
+});
