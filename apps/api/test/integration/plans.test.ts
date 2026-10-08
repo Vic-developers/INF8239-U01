@@ -71,7 +71,7 @@ describe('plan lifecycle', () => {
         .set('authorization', `Bearer ${token}`);
     }
     await worker.close();
-    await testApp.close();
+    await testApp.close?.();
   });
 
   it('previews two creates, executes them, and is idempotent on re-preview', async () => {

@@ -32,25 +32,25 @@ const COLUMNS = [
         to={`/plans/${context.row.original.id}`}
         className="font-medium text-primary underline-offset-4 hover:underline"
       >
-        {context.getValue()}
+        {String(context.getValue())}
       </Link>
     ),
   }),
   columnHelper.accessor('status', {
     header: 'Estado',
-    cell: (context) => <StatusBadge kind="plan" value={context.getValue()} />,
+    cell: (context) => <StatusBadge kind="plan" value={context.getValue() as any} />,
   }),
   columnHelper.accessor('origin', {
     header: 'Origen',
     cell: (context) => (
-      <span className="text-muted-foreground">{context.getValue()}</span>
+      <span className="text-muted-foreground">{String(context.getValue())}</span>
     ),
   }),
   columnHelper.accessor('createdAt', {
     header: 'Creado',
     cell: (context) => (
       <span className="text-muted-foreground">
-        {formatDistanceToNow(new Date(context.getValue()), { addSuffix: true, locale: es })}
+        {formatDistanceToNow(new Date(String(context.getValue())), { addSuffix: true, locale: es })}
       </span>
     ),
   }),
@@ -67,7 +67,7 @@ const COLUMNS = [
       </Link>
     ),
   }),
-];
+] as any;
 
 export function PlanListPage() {
   const { can } = useSession();
